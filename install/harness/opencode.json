@@ -1,0 +1,1 @@
+"priorart": { "type": "local", "command": ["__INSTALL_DIR__/priorart", "__CONFIG_PATH__"] }
