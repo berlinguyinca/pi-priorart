@@ -29,6 +29,7 @@ type Config struct {
 
 	GitHubToken    string `json:"-"` // env: GITHUB_TOKEN
 	Context7APIKey string `json:"-"` // env: CONTEXT7_API_KEY
+	LibrariesIOKey string `json:"-"` // env: LIBRARIES_IO_API_KEY
 }
 
 func Default() Config {
@@ -56,5 +57,6 @@ func Load(path string) (Config, error) {
 	}
 	cfg.GitHubToken = os.Getenv("GITHUB_TOKEN")
 	cfg.Context7APIKey = os.Getenv("CONTEXT7_API_KEY")
+	cfg.LibrariesIOKey = os.Getenv("LIBRARIES_IO_API_KEY")
 	return cfg, nil
 }

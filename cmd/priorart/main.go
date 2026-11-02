@@ -40,7 +40,7 @@ func main() {
 	bs := []backends.Backend{
 		ownlocal.New(cfg.OwnRoots, "rg"),
 		npm.New("", nil),
-		librariesio.New("", nil),
+		librariesio.New("", cfg.LibrariesIOKey, nil),
 		crates.New("", nil),
 		github.New("", cfg.GitHubToken, nil),
 		grepapp.New("", nil),

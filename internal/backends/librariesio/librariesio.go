@@ -7,24 +7,26 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strconv"
 	"time"
 
 	"github.com/berlinguyinca/priorart/internal/candidate"
 )
 
 type Client struct {
-	Base string
-	HTTP *http.Client
+	Base   string
+	APIKey string
+	HTTP   *http.Client
 }
 
-func New(baseURL string, httpc *http.Client) *Client {
+func New(baseURL, apiKey string, httpc *http.Client) *Client {
 	if baseURL == "" {
 		baseURL = "https://libraries.io"
 	}
 	if httpc == nil {
 		httpc = &http.Client{Timeout: 10 * time.Second}
 	}
-	return &Client{Base: baseURL, HTTP: httpc}
+	return &Client{Base: baseURL, APIKey: apiKey, HTTP: httpc}
 }
 
 func (c *Client) Name() string { return "librariesio" }
@@ -48,7 +50,13 @@ func (c *Client) Search(ctx context.Context, query, ecosystem string, limit int)
 	if limit <= 0 {
 		limit = 5
 	}
-	u := fmt.Sprintf("%s/api/search/%s?per_page=%d", c.Base, url.PathEscape(query), limit)
+	q := url.Values{}
+	q.Set("q", query)
+	q.Set("per_page", strconv.Itoa(limit))
+	if c.APIKey != "" {
+		q.Set("api_key", c.APIKey)
+	}
+	u := fmt.Sprintf("%s/api/search/%s?%s", c.Base, platform(ecosystem), q.Encode())
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)
 	if err != nil {
 		return nil, err
@@ -75,6 +83,22 @@ func (c *Client) Search(ctx context.Context, query, ecosystem string, limit int)
 		})
 	}
 	return out, nil
+}
+
+// platform maps a priorart ecosystem to a libraries.io platform name.
+func platform(ecosystem string) string {
+	switch ecosystem {
+	case "js":
+		return "npm"
+	case "rs":
+		return "crates.io"
+	case "go":
+		return "go"
+	case "py":
+		return "pypi"
+	default:
+		return ecosystem
+	}
 }
 
 func eco(platform string) string {
